@@ -1,0 +1,41 @@
+# Copy to config.toml and edit. Every key is optional; these are the defaults.
+
+[research]
+# What you care about / want to avoid. Claude uses these to steer niche ideas.
+interests = ["history", "psychology", "personal finance", "science"]
+format_preference = "animated stick-figure storytelling explainers (faceless, AI narration)"
+avoid = ["gambling", "medical advice", "politics"]
+language = "English"
+region = "US"             # YouTube regionCode used for search stats
+niche_count = 10          # niches Claude proposes per research run
+keywords_per_niche = 2    # each keyword costs ~102 YouTube API quota units (10,000/day free)
+lookback_days = 90        # only count videos published in this window
+
+[channel]
+# Leave empty to let `autopilot` use the top-scoring researched niche.
+niche = ""
+format = "long"           # "long" (16:9, ~6-10 min) or "short" (9:16, <60 s)
+target_minutes = 7
+voice = "en-US-AndrewNeural"   # any edge-tts voice (`edge-tts --list-voices`)
+# "ai": illustrated stick-figure scenes from Gemini's image model (needs GEMINI_API_KEY);
+#       falls back to the built-in renderer when the key is missing or a request fails.
+# "stickfigure": built-in stick-figure renderer only (free, no key).
+visual_style = "ai"
+image_model = "gemini-2.5-flash-image"
+image_style = ""          # override the default illustration style prompt (see ytagent/media.py)
+music_path = ""           # optional royalty-free background track (mp3)
+music_volume = 0.08
+
+[publish]
+review_required = true    # true: videos wait for `ytagent approve <id>` before upload
+privacy = "public"        # privacy once the scheduled time is reached
+category_id = "27"        # 27 = Education, 28 = Science & Tech, 22 = People & Blogs
+timezone = "America/New_York"
+days = ["mon", "wed", "fri"]
+times = ["15:00"]
+videos_per_run = 1        # how many videos `autopilot` creates each run
+disclose_synthetic_media = true
+
+[llm]
+model = "claude-opus-5"
+effort = "high"

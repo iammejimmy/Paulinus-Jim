@@ -1,0 +1,68 @@
+name: YouTube autopilot
+
+# Creates new videos and publishes approved ones on a schedule.
+# Required repository secrets: ANTHROPIC_API_KEY, YOUTUBE_TOKEN_JSON (contents of
+# youtube_token.json from `python -m ytagent auth`). Optional: GEMINI_API_KEY,
+# YOUTUBE_API_KEY, YTAGENT_CONFIG (full contents of your config.toml).
+# Set review_required = false in YTAGENT_CONFIG for hands-off posting.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1,3,5"   # Mon/Wed/Fri 13:00 UTC
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "ytagent command (autopilot, research, publish)"
+        default: autopilot
+
+concurrency: ytagent
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - run: pip install .
+
+      # State (researched niches, video queue) persists between runs via the cache.
+      - uses: actions/cache/restore@v4
+        with:
+          path: data
+          key: ytagent-state-${{ github.run_id }}
+          restore-keys: ytagent-state-
+
+      - name: Write config
+        env:
+          YTAGENT_CONFIG: ${{ secrets.YTAGENT_CONFIG }}
+        run: |
+          if [ -n "$YTAGENT_CONFIG" ]; then printf '%s' "$YTAGENT_CONFIG" > config.toml; else cp config.example.toml config.toml; fi
+
+      - name: Run
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_TOKEN_JSON: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+        run: python -m ytagent ${{ github.event.inputs.command || 'autopilot' }}
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data
+          key: ytagent-state-${{ github.run_id }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ytagent-output
+          path: |
+            output/**/video.mp4
+            output/**/thumbnail.jpg
+            output/**/plan.json
+            output/niche_report.md
+          retention-days: 14

@@ -1,0 +1,24 @@
+[project]
+name = "ytagent"
+version = "0.1.0"
+description = "AI agent that finds profitable YouTube niches, generates videos with Claude, and schedules uploads."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.116.0",
+    "google-api-python-client>=2.130",
+    "google-auth-oauthlib>=1.2",
+    "google-auth>=2.29",
+    "edge-tts>=6.1",
+    "Pillow>=10.1",
+]
+
+[project.scripts]
+ytagent = "ytagent.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ytagent"]
