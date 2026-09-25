@@ -7,3 +7,4 @@ output/
 client_secret*.json
 youtube_token.json
 config.toml
+*.egg-info/
