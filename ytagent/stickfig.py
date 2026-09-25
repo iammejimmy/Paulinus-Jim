@@ -166,7 +166,8 @@ def draw_figure(d: ImageDraw.ImageDraw, fig: dict, W: int, H: int, height_frac=0
     draw_face(d, cx, cy, r, fig.get("expression", "neutral"), direction, max(2, lw - 1))
 
     if fig.get("label"):
-        draw_text_center(d, (x, ground + H * 0.06), fig["label"], max(16, H // 32), fill=accent)
+        draw_text_center(d, (x, ground + H * 0.06), fig["label"], max(16, H // 32), fill=accent,
+                         stroke=max(2, H // 360), stroke_fill="white")
     if fig.get("speech"):
         draw_bubble(d, (cx, cy - r * 1.3), fig["speech"], H, W)
 
